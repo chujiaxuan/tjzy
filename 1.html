@@ -112,8 +112,8 @@
         /* 学生容器 */
         #student-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(8, 1fr); /* 每行显示8个学生 */
+            gap: 10px; /* 学生之间的间距 */
             max-width: 1200px;
             width: 100%;
             animation: fadeIn 1s ease-out;
@@ -312,6 +312,10 @@
 
         /* 移动端优化 */
         @media (max-width: 600px) {
+            #student-container {
+                grid-template-columns: repeat(4, 1fr); /* 移动端每行显示4个学生 */
+            }
+
             #input-container, #button-container, #student-container, #count-container {
                 width: 100%;
                 padding: 10px;
