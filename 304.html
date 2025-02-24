@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作业统计</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        h1 {
+            text-align: center;
+            color: #0277bd;
+            margin-bottom: 20px;
+            font-size: 3rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: 1px;
+        }
+
+        /* 输入框容器 */
+        #input-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: #e1f5fe;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            animation: slideInDown 0.8s ease-out;
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        #filename-input {
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            margin-right: 10px;
+            width: 300px;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            outline: none;
+            transition: box-shadow 0.3s ease;
+        }
+
+        #filename-input:focus {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 按钮容器 */
+        #button-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            background-color: #e1f5fe;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .status-button {
+            padding: 15px 30px;
+            margin: 0 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #excellent {
+            background-color: #66CCFF; /* 淡蓝色，代表优秀 */
+            color: white;
+        }
+
+        #excellent:hover {
+            background-color: #47A3FF;
+        }
+
+        #completed {
+            background-color: #C8E6C9; /* 更温和的绿色，代表完成 */
+            color: white;
+        }
+
+        #completed:hover {
+            background-color: #A5D6A7;
+        }
+
+        #makeup {
+            background-color: #99CCFF; /* 淡天蓝色，代表补交 */
+            color: white;
+        }
+
+        #makeup:hover {
+            background-color: #73A6FF;
+        }
+
+        #unfinished {
+            background-color: #6699FF; /* 淡靛蓝色，代表未完成 */
+            color: white;
+        }
+
+        #unfinished:hover {
+            background-color: #4775FF;
+        }
+
+        /* 学生容器 */
+        #student-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .student-name {
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #ffffff;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.3);
+        }
+
+        .student-name:hover {
+            background-color: #b3e5fc;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 统计容器 */
+        #count-container {
+            margin-top: 20px;
+            font-size: 1.3rem;
+            color: #0277bd;
+            background-color: #e1f5fe;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        /* 导出按钮 */
+        #export-button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background-color: #0277bd;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        #export-button:hover {
+            background-color: #01579b;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>作业统计</h1>
+    <div id="input-container">
+        <input type="text" id="filename-input" placeholder="请输入导出文件名" value="作业统计.xlsx">
+    </div>
+    <div id="button-container">
+        <button id="excellent" class="status-button">优秀</button>
+        <button id="completed" class="status-button">完成</button>
+        <button id="makeup" class="status-button">补交</button>
+        <button id="unfinished" class="status-button">未完成</button>
+    </div>
+    <div id="student-container">
+        <!-- 这里会动态添加学生姓名 -->
+    </div>
+    <div id="count-container">
+        已交作业数量: <span id="submitted-count">0</span>
+        未交作业数量: <span id="unsubmitted-count">0</span>
+    </div>
+    <button id="export-button">导出 Excel</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // 具体的学生数据，包含学号和姓名
+        const students = [
+            { id: '1', name: '傅宇轩' },
+            { id: '2', name: '来骏韬' },
+            { id: '3', name: '吴子瑜' },
+            { id: '4', name: '何俊奕' },
+            { id: '5', name: '王钰淼' },
+            { id: '6', name: '黄正翰' },
+            { id: '7', name: '刘波辰' },
+            { id: '8', name: '郭沐辰' },
+            { id: '9', name: '王溢杨' },
+            { id: '10', name: '张容菲' },
+            { id: '11', name: '金依昕' },
+            { id: '12', name: '华沈羽' },
+            { id: '13', name: '金希昀' },
+            { id: '14', name: '来诗颜' },
+            { id: '15', name: '来馨怡' },
+            { id: '16', name: '华祎淩' },
+            { id: '17', name: '吴沁蔚' },
+            { id: '18', name: '来叶语' },
+            { id: '19', name: '张诗诺' },
+            { id: '20', name: '袁楚珊' },
+            { id: '21', name: '焦琳洢' },
+            { id: '22', name: '冯浩萱' },
+            { id: '23', name: '甘存希' },
+            { id: '24', name: '赵言钊' },
+            { id: '25', name: '余亦洧' },
+            { id: '26', name: '马豪杰' },
+            { id: '27', name: '何喜升' },
+            { id: '28', name: '邵焓韵' },
+            { id: '29', name: '薛佳依' },
+            { id: '30', name: '杨紫彤' },
+            { id: '31', name: '李嘉悦' },
+            { id: '32', name: '郭子妍' },
+            { id: '33', name: '曹颐雪' },
+            { id: '34', name: '徐尚清' },
+            { id: '35', name: '岑庭怡' },
+            { id: '36', name: '毛天韩' },
+            { id: '37', name: '邹文强' },
+            { id: '38', name: '钟吕昕' },
+            { id: '39', name: '钟雨瞳' },
+            { id: '40', name: '汪乐凡' },
+            { id: '41', name: '黎珵睿' },
+            { id: '42', name: '蔡一成' },
+            { id: '43', name: '姚子琪' },
+            { id: '44', name: '章泽玟' }
+        ];
+
+        const studentContainer = document.getElementById('student-container');
+        const submittedCount = document.getElementById('submitted-count');
+        const unsubmittedCount = document.getElementById('unsubmitted-count');
+        const exportButton = document.getElementById('export-button');
+        const filenameInput = document.getElementById('filename-input');
+
+        // 初始化学生状态
+        const studentStatus = {};
+        students.forEach(student => {
+            studentStatus[student.id] = '×';
+        });
+
+        // 渲染学生姓名
+        students.forEach(student => {
+            const div = document.createElement('div');
+            div.classList.add('student-name');
+            // 同时显示学号和姓名
+            div.textContent = `${student.id} ${student.name}`;
+            div.dataset.id = student.id;
+            studentContainer.appendChild(div);
+        });
+
+        // 当前选中的状态
+        let currentStatus = null;
+
+        // 绑定状态按钮事件
+        const statusButtons = document.querySelectorAll('.status-button');
+        statusButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentStatus = button.id;
+            });
+        });
+
+        // 绑定学生姓名点击事件
+        studentContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('student-name') && currentStatus) {
+                const studentId = event.target.dataset.id;
+                switch (currentStatus) {
+                    case 'excellent':
+                        event.target.style.backgroundColor = '#66CCFF';
+                        studentStatus[studentId] = '☆';
+                        break;
+                    case 'completed':
+                        event.target.style.backgroundColor = '#C8E6C9';
+                        studentStatus[studentId] = '√';
+                        break;
+                    case 'makeup':
+                        event.target.style.backgroundColor = '#99CCFF';
+                        studentStatus[studentId] = '△';
+                        break;
+                    case 'unfinished':
+                        event.target.style.backgroundColor = '#6699FF';
+                        studentStatus[studentId] = '□';
+                        break;
+                }
+                updateCounts();
+            }
+        });
+
+        // 更新已交和未交作业数量
+        function updateCounts() {
+            let submitted = 0;
+            let unsubmitted = 0;
+            for (const status of Object.values(studentStatus)) {
+                if (status === '×') {
+                    unsubmitted++;
+                } else {
+                    submitted++;
+                }
+            }
+            submittedCount.textContent = submitted;
+            unsubmittedCount.textContent = unsubmitted;
+        }
+
+        // 导出 Excel
+        exportButton.addEventListener('click', () => {
+            const ws = XLSX.utils.aoa_to_sheet([]);
+            let row = [];
+            let index = 0;
+            for (const student of students) {
+                row.push(`${student.id}${studentStatus[student.id]}`);
+                index++;
+                if (index % 8 === 0) {
+                    XLSX.utils.sheet_add_aoa(ws, [row], { origin: -1 });
+                    row = [];
+                }
+            }
+            if (row.length > 0) {
+                XLSX.utils.sheet_add_aoa(ws, [row], { origin: -1 });
+            }
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '作业统计');
+            let filename = filenameInput.value;
+            if (!filename.endsWith('.xlsx')) {
+                filename += '.xlsx';
+            }
+            XLSX.writeFile(wb, filename);
+        });
+
+        // 初始化计数
+        updateCounts();
+    </script>
+</body>
+
+</html>
