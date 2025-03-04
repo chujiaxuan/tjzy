@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>课堂随机点名</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #ffb6c1, #87cefa);
+            font-family: "Comic Sans MS", cursive;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        #header {
+            text-align: center;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+
+        #nameContainer {
+            height: 200px;
+            width: 80%;
+            margin: 20px auto;
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: bold;
+        }
+
+        #controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background: #45a049;
+        }
+
+        .selected {
+            color: #2196F3 !important;
+            font-size: 3.2em !important;
+        }
+
+        #speedControl {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            writing-mode: bt-lr;
+        }
+
+        .config-panel {
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px auto;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="header">🎉 随机点名抽问 🎉</h1>
+    
+    <div class="config-panel">
+        <h3>班级管理</h3>
+        <div>
+            <select id="classSelector" style="margin: 10px; padding: 5px"></select>
+            <button onclick="saveClass()">保存班级</button>
+            <button onclick="deleteClass()">删除班级</button>
+        </div>
+        <div>
+            <input type="text" id="className" placeholder="输入班级名称" style="padding: 8px">
+            <textarea id="nameInput" 
+                     placeholder="粘贴学生姓名，每行一个"
+                     rows="5"
+                     style="width: 100%; margin: 10px 0; padding: 10px"></textarea>
+        </div>
+    </div>
+
+    <div id="nameContainer">👩🏫 准备就绪</div>
+    
+    <div id="controls">
+        <button onclick="toggleRoll()">🎯 开始点名</button>
+    </div>
+
+    <input type="range" id="speedControl" min="1" max="100" value="50" 
+          orient="vertical" oninput="updateSpeed(this.value)">
+
+    <script>
+        let isRolling = false;
+        let intervalId;
+        let currentNames = [];
+        let speed = 50;
+        
+        // 初始化班级选择器
+        function initClasses() {
+            const classes = JSON.parse(localStorage.getItem('classes') || '{}');
+            const selector = document.getElementById('classSelector');
+            selector.innerHTML = Object.keys(classes).map(c => 
+                `<option value="${c}">${c}</option>`
+            ).join('');
+        }
+
+        // 保存班级
+        function saveClass() {
+            const className = document.getElementById('className').value;
+            const names = document.getElementById('nameInput').value.split('\n');
+            
+            if (!className) return alert('请输入班级名称');
+            if (names.length < 1) return alert('请输入学生姓名');
+            
+            const classes = JSON.parse(localStorage.getItem('classes') || '{}');
+            classes[className] = names;
+            localStorage.setItem('classes', JSON.stringify(classes));
+            initClasses();
+        }
+
+        // 删除班级
+        function deleteClass() {
+            const className = document.getElementById('classSelector').value;
+            const classes = JSON.parse(localStorage.getItem('classes') || '{}');
+            delete classes[className];
+            localStorage.setItem('classes', JSON.stringify(classes));
+            initClasses();
+        }
+
+        // 加载选中班级
+        document.getElementById('classSelector').onchange = function() {
+            const classes = JSON.parse(localStorage.getItem('classes') || '{}');
+            currentNames = classes[this.value] || [];
+        }
+
+        function toggleRoll() {
+            if (!currentNames.length) return alert('请先选择或创建班级');
+            
+            isRolling = !isRolling;
+            document.querySelector('button').textContent = isRolling ? '🚨 停止抽选' : '🎯 开始点名';
+            
+            if (isRolling) {
+                intervalId = setInterval(() => {
+                    const randomIndex = Math.floor(Math.random() * currentNames.length);
+                    document.getElementById('nameContainer').innerHTML = 
+                        `<div>${currentNames[randomIndex]}</div>`;
+                }, speed);
+            } else {
+                clearInterval(intervalId);
+                const currentName = document.getElementById('nameContainer').firstChild;
+                currentName.classList.add('selected');
+            }
+        }
+
+        function updateSpeed(value) {
+            speed = 200 - value * 1.9; // 速度范围：5ms-190ms
+        }
+
+        // 初始化
+        initClasses();
+    </script>
+</body>
+</html>
